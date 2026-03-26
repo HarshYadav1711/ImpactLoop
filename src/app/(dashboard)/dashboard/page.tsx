@@ -181,7 +181,11 @@ export default async function DashboardPage({
             <h2 className="text-lg font-semibold tracking-tight">Charity allocation</h2>
             <p className="mt-1 text-sm text-zinc-600">Select the charity receiving your current monthly allocation.</p>
             <form action={updateCharityAction} className="mt-4 space-y-3">
+              <label htmlFor="charityId" className="text-sm font-medium text-zinc-700">
+                Choose charity
+              </label>
               <select
+                id="charityId"
                 name="charityId"
                 defaultValue={userCharity?.charity_id ?? ""}
                 className="h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm text-zinc-900 focus:border-zinc-500 focus:outline-none"

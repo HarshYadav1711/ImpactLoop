@@ -94,6 +94,7 @@ create table if not exists public.winner_verifications (
   draw_result_id uuid not null unique references public.draw_results(id) on delete cascade,
   verified_by uuid not null references public.profiles(id),
   verified_at timestamptz not null default now(),
+  outcome text not null default 'approved' check (outcome in ('approved', 'rejected')),
   method text not null default 'manual',
   notes text
 );

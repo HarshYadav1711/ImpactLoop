@@ -1,21 +1,15 @@
-import { Badge, Card, DataTable, Table, Td, Th } from "@/components/ui";
+import Link from "next/link";
+import { Card, Button } from "@/components/ui";
+import { requireAdmin } from "@/lib/auth";
 
-export default function AdminUsersPage() {
+export default async function AdminUsersPage() {
+  await requireAdmin();
+
   return (
     <Card>
-      <h1 className="text-xl font-semibold tracking-tight">Users</h1>
-      <p className="mt-2 text-sm text-zinc-600">Administrative user list shell.</p>
-      <div className="mt-4">
-        <DataTable>
-          <Table>
-            <thead className="bg-zinc-50"><tr><Th>Name</Th><Th>Role</Th><Th>Status</Th></tr></thead>
-            <tbody className="divide-y divide-zinc-200">
-              <tr><Td>Sample User</Td><Td><Badge>user</Badge></Td><Td>Placeholder</Td></tr>
-              <tr><Td>Sample Admin</Td><Td><Badge tone="warning">admin</Badge></Td><Td>Placeholder</Td></tr>
-            </tbody>
-          </Table>
-        </DataTable>
-      </div>
+      <h1 className="text-xl font-semibold tracking-tight">User operations moved</h1>
+      <p className="mt-2 text-sm text-zinc-600">User, subscription, moderation, draw, verification, and payout operations are managed in the unified admin console.</p>
+      <Link href="/admin" className="mt-4 inline-block"><Button>Open admin console</Button></Link>
     </Card>
   );
 }
