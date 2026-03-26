@@ -1,60 +1,105 @@
-# ImpactLoop Foundation
+# ImpactLoop Foundation + Auth Core
 
-Production-grade app foundation for a subscription-based golf platform.
+This repository now includes the production-grade foundation plus authentication, authorization, and required core schema.
 
-## What is included
+## Stack
 
 - Next.js App Router + TypeScript
-- Tailwind CSS with base design tokens
-- Mobile-first route groups and layouts:
-  - Public: `(marketing)` -> `/`, `/pricing`
-  - Auth: `(auth)` -> `/login`, `/signup`, `/forgot-password`
-  - User: `(dashboard)` -> `/dashboard`, `/settings`
-  - Admin: `(admin)` -> `/admin`, `/admin/users`
-- Reusable UI primitives:
-  - `Button`, `Card`, `Badge`, `Input`, `DataTable/Table`, `Dialog`, `EmptyState`
-- Reusable state components:
-  - `LoadingState`, `ErrorState`
-- Shell layouts:
-  - `MarketingShell`, `DashboardShell`, `AdminShell`
-- Supabase-ready setup:
-  - env template
-  - SSR/browser clients
-  - middleware entry point
+- Tailwind CSS
+- Supabase Auth (email/password)
+- Supabase Postgres with RLS
+- Zod validation in server actions
 
-## What is intentionally NOT included yet
+## Implemented auth and access control
 
-- Business feature flows (subscription logic, draw logic, score rules)
-- Database actions and server workflows
-- Admin operations implementation
+- Email/password sign-up and sign-in using Supabase Auth
+- Session cookies via Supabase SSR middleware
+- Role-based access with `profiles.role` (`user`, `admin`)
+- Route protection:
+  - `/dashboard`, `/settings` require authentication
+  - `/admin`, `/admin/users` require admin role
+- Logout action included in dashboard/admin shells
+- Redirect behavior:
+  - unauthenticated protected access -> `/login`
+  - non-admin access to `/admin*` -> `/dashboard`
 
-This keeps scope to foundation-only architecture.
+## Core database schema (`supabase/schema.sql`)
 
-## Environment setup
+Required tables implemented:
 
-1. Copy `.env.example` to `.env.local`
-2. Fill values:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY` (reserved for future secure server-side tasks)
+- `profiles`
+- `subscriptions`
+- `scores`
+- `charities`
+- `user_charities`
+- `draws`
+- `draw_entries`
+- `draw_results`
+- `winner_verifications`
+- `payouts`
 
-## Run locally
+Supporting pieces:
+
+- `handle_new_user` trigger to auto-create `profiles` records from `auth.users`
+- `is_admin(uuid)` helper for policies
+- update timestamp triggers for mutable tables
+- RLS enabled on all core tables
+- policies scoped so users can only see their own data while admin has elevated operations
+
+## Relationship summary
+
+- `profiles.id` -> `auth.users.id` (1:1)
+- `subscriptions.user_id` -> `profiles.id` (1:1)
+- `scores.user_id` -> `profiles.id` (many:1)
+- `user_charities.user_id` -> `profiles.id` (1:1)
+- `user_charities.charity_id` -> `charities.id` (many:1)
+- `draw_entries.draw_id` -> `draws.id` (many:1)
+- `draw_entries.user_id` -> `profiles.id` (many:1)
+- `draw_entries.source_score_id` -> `scores.id` (optional)
+- `draw_results.draw_id` -> `draws.id` (many:1)
+- `draw_results.winner_entry_id` -> `draw_entries.id` (optional)
+- `draw_results.winner_user_id` -> `profiles.id` (optional)
+- `winner_verifications.draw_result_id` -> `draw_results.id` (1:1)
+- `payouts.draw_result_id` -> `draw_results.id` (1:1)
+
+## Seed data (`supabase/seed.sql`)
+
+Includes believable demo data for:
+
+- charities
+- draw months/statuses
+- optional demo users/subscriptions/scores if matching auth users exist:
+  - `admin@impactloop.dev`
+  - `olivia.member@impactloop.dev`
+  - `nathan.member@impactloop.dev`
+
+## Environment
+
+Copy `.env.example` to `.env.local` and set:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+## Run
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+## Apply database setup (Supabase SQL editor)
 
-## Project structure (high level)
+1. Run `supabase/schema.sql`
+2. Run `supabase/seed.sql`
 
-- `src/app` route groups and pages
-- `src/components/ui` design system primitives
-- `src/components/layout` route shell components
-- `src/components/state` loading/error components
-- `src/lib/supabase` Supabase client setup
-- `src/lib/utils` shared utilities
+## Quick role setup for admin testing
+
+```sql
+update public.profiles
+set role = 'admin'
+where id = (select id from auth.users where email = 'admin@impactloop.dev');
+```
 
 ## Validation
 
