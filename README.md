@@ -19,7 +19,8 @@ Members manage subscription visibility, score history (latest five), charity all
 1. Install dependencies:
    - `npm install`
 2. Copy env:
-   - `cp .env.example .env.local`
+   - macOS/Linux: `cp .env.example .env.local`
+   - Windows PowerShell: `Copy-Item .env.example .env.local`
 3. Set env values:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`

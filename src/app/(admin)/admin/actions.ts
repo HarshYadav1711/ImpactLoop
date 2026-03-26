@@ -375,11 +375,14 @@ export async function updatePayoutAction(formData: FormData) {
 
   const { data: result } = await supabase
     .from("draw_results")
-    .select("prize_cents")
+    .select("prize_cents, status")
     .eq("id", parsed.data.drawResultId)
     .maybeSingle();
 
   if (!result) fail("Draw result not found.");
+  if (parsed.data.status === "paid" && result.status !== "verified") {
+    fail("Payout can be marked paid only after winner verification.");
+  }
 
   const paidAt = parsed.data.status === "paid" ? new Date().toISOString() : null;
 
