@@ -1,109 +1,66 @@
-# ImpactLoop Foundation + Auth Core
+# ImpactLoop
 
-This repository now includes the production-grade foundation plus authentication, authorization, and required core schema.
+## Product overview
+ImpactLoop is a subscription-based golf impact platform with three clear surfaces:
+- Public site (`/`, `/pricing`)
+- Member app (`/dashboard`, `/settings`)
+- Admin operations console (`/admin`)
 
-## Stack
+Members manage subscription visibility, score history (latest five), charity allocation, and draw/payout visibility. Admins run moderation, simulate/publish draws, verify winners, and track payouts.
 
+## Tech stack
 - Next.js App Router + TypeScript
 - Tailwind CSS
 - Supabase Auth (email/password)
-- Supabase Postgres with RLS
-- Zod validation in server actions
+- Supabase Postgres + RLS
+- Zod for server-side validation
 
-## Implemented auth and access control
+## Setup
+1. Install dependencies:
+   - `npm install`
+2. Copy env:
+   - `cp .env.example .env.local`
+3. Set env values:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_SITE_URL` (local: `http://localhost:3000`)
+   - `SUPABASE_SERVICE_ROLE_KEY`
+4. In Supabase SQL Editor run:
+   - `supabase/schema.sql`
+   - `supabase/seed.sql`
+5. Start app:
+   - `npm run dev`
 
-- Email/password sign-up and sign-in using Supabase Auth
-- Session cookies via Supabase SSR middleware
-- Role-based access with `profiles.role` (`user`, `admin`)
-- Route protection:
-  - `/dashboard`, `/settings` require authentication
-  - `/admin`, `/admin/users` require admin role
-- Logout action included in dashboard/admin shells
-- Redirect behavior:
-  - unauthenticated protected access -> `/login`
-  - non-admin access to `/admin*` -> `/dashboard`
-
-## Core database schema (`supabase/schema.sql`)
-
-Required tables implemented:
-
-- `profiles`
-- `subscriptions`
-- `scores`
-- `charities`
-- `user_charities`
-- `draws`
-- `draw_entries`
-- `draw_results`
-- `winner_verifications`
-- `payouts`
-
-Supporting pieces:
-
-- `handle_new_user` trigger to auto-create `profiles` records from `auth.users`
-- `is_admin(uuid)` helper for policies
-- update timestamp triggers for mutable tables
-- RLS enabled on all core tables
-- policies scoped so users can only see their own data while admin has elevated operations
-
-## Relationship summary
-
-- `profiles.id` -> `auth.users.id` (1:1)
-- `subscriptions.user_id` -> `profiles.id` (1:1)
-- `scores.user_id` -> `profiles.id` (many:1)
-- `user_charities.user_id` -> `profiles.id` (1:1)
-- `user_charities.charity_id` -> `charities.id` (many:1)
-- `draw_entries.draw_id` -> `draws.id` (many:1)
-- `draw_entries.user_id` -> `profiles.id` (many:1)
-- `draw_entries.source_score_id` -> `scores.id` (optional)
-- `draw_results.draw_id` -> `draws.id` (many:1)
-- `draw_results.winner_entry_id` -> `draw_entries.id` (optional)
-- `draw_results.winner_user_id` -> `profiles.id` (optional)
-- `winner_verifications.draw_result_id` -> `draw_results.id` (1:1)
-- `payouts.draw_result_id` -> `draw_results.id` (1:1)
-
-## Seed data (`supabase/seed.sql`)
-
-Includes believable demo data for:
-
-- charities
-- draw months/statuses
-- optional demo users/subscriptions/scores if matching auth users exist:
-  - `admin@impactloop.dev`
-  - `olivia.member@impactloop.dev`
-  - `nathan.member@impactloop.dev`
-
-## Environment
-
-Copy `.env.example` to `.env.local` and set:
-
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-
-## Run
-
-```bash
-npm install
-npm run dev
-```
-
-## Apply database setup (Supabase SQL editor)
-
-1. Run `supabase/schema.sql`
-2. Run `supabase/seed.sql`
-
-## Quick role setup for admin testing
-
+## Test flow (quick reviewer path)
+1. Create two users in app:
+   - `admin@impactloop.dev`
+   - `member@impactloop.dev`
+2. Promote admin in SQL:
 ```sql
 update public.profiles
 set role = 'admin'
 where id = (select id from auth.users where email = 'admin@impactloop.dev');
 ```
+3. Sign in as member:
+   - Add scores, confirm only latest five persist
+   - Select charity and confirm dashboard updates
+4. Sign in as admin:
+   - Update subscription/status
+   - Simulate draw for a month
+   - Publish simulated draw
+   - Approve/reject winner and update payout status
+5. Verify non-admin cannot access `/admin`.
 
-## Validation
+## Deployment notes
+### Vercel Hobby
+- Import repo and deploy with default Next.js settings.
+- Add all env vars from `.env.local`.
 
-```bash
-npm run lint
-npm run build
-```
+### Supabase Free
+- Create project, enable email/password auth.
+- Run schema + seed scripts.
+- Use SQL role update for admin reviewer account.
+
+## Validation commands
+- `npm run lint`
+- `npm run build`

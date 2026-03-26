@@ -114,11 +114,11 @@ export default async function AdminPage({
           <h2 className="text-lg font-semibold tracking-tight">User management</h2>
           <p className="mt-1 text-sm text-zinc-600">Control role access for internal operations.</p>
           <form action={updateUserRoleAction} className="mt-4 grid gap-3 sm:grid-cols-3">
-            <select name="userId" className="h-10 rounded-lg border border-zinc-300 px-3 text-sm sm:col-span-2" required>
+            <select aria-label="Select user for role update" name="userId" className="h-10 rounded-lg border border-zinc-300 px-3 text-sm sm:col-span-2" required>
               <option value="" disabled>Choose user</option>
               {profileOptions}
             </select>
-            <select name="role" className="h-10 rounded-lg border border-zinc-300 px-3 text-sm" defaultValue="user">
+            <select aria-label="Select role" name="role" className="h-10 rounded-lg border border-zinc-300 px-3 text-sm" defaultValue="user">
               <option value="user">user</option>
               <option value="admin">admin</option>
             </select>
@@ -142,16 +142,16 @@ export default async function AdminPage({
           <h2 className="text-lg font-semibold tracking-tight">Subscription management</h2>
           <p className="mt-1 text-sm text-zinc-600">Assign plan, status, and billing base for draw pool calculations.</p>
           <form action={updateSubscriptionAction} className="mt-4 grid gap-3 sm:grid-cols-2">
-            <select name="userId" className="h-10 rounded-lg border border-zinc-300 px-3 text-sm sm:col-span-2" required>
+            <select aria-label="Select user for subscription update" name="userId" className="h-10 rounded-lg border border-zinc-300 px-3 text-sm sm:col-span-2" required>
               <option value="" disabled>Choose user</option>
               {profileOptions}
             </select>
-            <select name="plan" className="h-10 rounded-lg border border-zinc-300 px-3 text-sm" defaultValue="standard">
+            <select aria-label="Select subscription plan" name="plan" className="h-10 rounded-lg border border-zinc-300 px-3 text-sm" defaultValue="standard">
               <option value="starter">starter</option>
               <option value="standard">standard</option>
               <option value="plus">plus</option>
             </select>
-            <select name="status" className="h-10 rounded-lg border border-zinc-300 px-3 text-sm" defaultValue="active">
+            <select aria-label="Select subscription status" name="status" className="h-10 rounded-lg border border-zinc-300 px-3 text-sm" defaultValue="active">
               <option value="active">active</option>
               <option value="inactive">inactive</option>
               <option value="paused">paused</option>
@@ -225,8 +225,8 @@ export default async function AdminPage({
         <Card>
           <h2 className="text-lg font-semibold tracking-tight">Draw simulation and publication</h2>
           <p className="mt-1 text-sm text-zinc-600">Deterministic weighted engine using real subscriptions and monthly scores.</p>
-          <form action={simulateDrawAction} className="mt-4 flex gap-2">
-            <Input name="drawMonth" type="month" required />
+          <form action={simulateDrawAction} className="mt-4 flex flex-wrap gap-2">
+            <Input name="drawMonth" type="month" required className="min-w-[180px] flex-1" />
             <Button type="submit">Simulate</Button>
           </form>
 
@@ -295,7 +295,7 @@ export default async function AdminPage({
                         <Td>
                           <form action={updatePayoutAction} className="flex items-center gap-2">
                             <input type="hidden" name="drawResultId" value={result.id} />
-                            <select name="status" defaultValue={payout?.status ?? "pending"} className="h-8 rounded-md border border-zinc-300 px-2 text-xs">
+                            <select aria-label="Update payout status" name="status" defaultValue={payout?.status ?? "pending"} className="h-8 rounded-md border border-zinc-300 px-2 text-xs">
                               <option value="pending">pending</option>
                               <option value="processing">processing</option>
                               <option value="paid">paid</option>

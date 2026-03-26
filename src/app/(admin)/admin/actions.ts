@@ -143,7 +143,6 @@ export async function simulateDrawAction(formData: FormData) {
   const parsed = simulateDrawSchema.safeParse({ drawMonth: formData.get("drawMonth") });
   if (!parsed.success) fail("Use a valid draw month.");
 
-  await requireAdmin();
   const admin = await requireAdmin();
   const supabase = await createClient();
 
@@ -316,6 +315,12 @@ export async function publishDrawAction(formData: FormData) {
 
   const { data: draw } = await supabase.from("draws").select("status").eq("id", parsed.data.drawId).maybeSingle();
   if (!draw || draw.status !== "simulated") fail("Draw must be simulated before publishing.");
+
+  const { count } = await supabase
+    .from("draw_results")
+    .select("id", { count: "exact", head: true })
+    .eq("draw_id", parsed.data.drawId);
+  if (!count) fail("Simulated draw has no results to publish.");
 
   const { error } = await supabase
     .from("draws")

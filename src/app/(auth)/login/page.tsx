@@ -15,11 +15,16 @@ export default async function LoginPage({
       <p className="mt-2 text-sm text-zinc-600">Use your account to access ImpactLoop.</p>
       {error ? <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
       <form action={signInAction} className="mt-5 space-y-3">
-        <Input name="email" type="email" placeholder="Email" required />
-        <Input name="password" type="password" placeholder="Password" required />
+        <label htmlFor="loginEmail" className="text-sm font-medium text-zinc-700">Email</label>
+        <Input id="loginEmail" name="email" type="email" placeholder="Email" required />
+        <label htmlFor="loginPassword" className="text-sm font-medium text-zinc-700">Password</label>
+        <Input id="loginPassword" name="password" type="password" placeholder="Password" required />
         <Button className="w-full" type="submit">Continue</Button>
       </form>
-      <p className="mt-4 text-sm text-zinc-600">No account? <Link href="/signup" className="underline">Create one</Link></p>
+      <div className="mt-4 flex items-center justify-between gap-3 text-sm text-zinc-600">
+        <p>No account? <Link href="/signup" className="underline">Create one</Link></p>
+        <Link href="/forgot-password" className="underline">Forgot password</Link>
+      </div>
     </Card>
   );
 }
