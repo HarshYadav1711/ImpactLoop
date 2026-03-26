@@ -72,22 +72,19 @@ export async function signUpAction(formData: FormData) {
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
+    options: {
+      data: {
+        full_name: parsed.data.fullName,
+      },
+    },
   });
 
   if (error) {
     redirect(withError("/signup", error.message));
   }
 
-  if (data.user) {
-    const { error: profileError } = await supabase.from("profiles").upsert({
-      id: data.user.id,
-      full_name: parsed.data.fullName,
-      role: "user",
-    });
-
-    if (profileError) {
-      redirect(withError("/signup", profileError.message));
-    }
+  if (!data.user) {
+    redirect(withError("/signup", "Unable to create account."));
   }
 
   redirect("/dashboard");

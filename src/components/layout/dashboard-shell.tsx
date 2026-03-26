@@ -1,6 +1,12 @@
 import Link from "next/link";
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+export function DashboardShell({
+  children,
+  canAccessAdmin = false,
+}: {
+  children: React.ReactNode;
+  canAccessAdmin?: boolean;
+}) {
   return (
     <div className="min-h-screen bg-zinc-50">
       <header className="border-b border-zinc-200 bg-white">
@@ -9,7 +15,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <nav className="flex items-center gap-2 text-sm">
             <Link href="/dashboard" className="rounded-md px-3 py-1.5 text-zinc-700 hover:bg-zinc-100">Overview</Link>
             <Link href="/settings" className="rounded-md px-3 py-1.5 text-zinc-700 hover:bg-zinc-100">Settings</Link>
-            <Link href="/admin" className="rounded-md px-3 py-1.5 text-zinc-700 hover:bg-zinc-100">Admin</Link>
+            {canAccessAdmin ? <Link href="/admin" className="rounded-md px-3 py-1.5 text-zinc-700 hover:bg-zinc-100">Admin</Link> : null}
           </nav>
         </div>
       </header>
