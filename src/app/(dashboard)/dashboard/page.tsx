@@ -1,21 +1,30 @@
-import { Card, DataTable, EmptyState, Table, Td, Th } from "@/components/ui";
-import { LoadingState } from "@/components/state";
+import { signOutAction } from "@/app/(auth)/actions";
+import { Badge, Button, Card, DataTable, Table, Td, Th } from "@/components/ui";
+import { requireAuth } from "@/lib/auth";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const auth = await requireAuth();
+
   return (
     <div className="space-y-4">
       <Card>
-        <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="mt-2 text-sm text-zinc-600">User area shell with production-ready component patterns.</p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">User dashboard</h1>
+            <p className="mt-1 text-sm text-zinc-600">Signed in as {auth.fullName} ({auth.email ?? "no email"}).</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge tone="success">{auth.role}</Badge>
+            <form action={signOutAction}><Button variant="secondary" type="submit">Logout</Button></form>
+          </div>
+        </div>
       </Card>
-      <LoadingState label="Loading user metrics layout..." />
       <DataTable>
         <Table>
-          <thead className="bg-zinc-50"><tr><Th>Section</Th><Th>Status</Th></tr></thead>
-          <tbody className="divide-y divide-zinc-200"><tr><Td>Subscription</Td><Td>Planned</Td></tr><tr><Td>Scores</Td><Td>Planned</Td></tr></tbody>
+          <thead className="bg-zinc-50"><tr><Th>Area</Th><Th>Access</Th></tr></thead>
+          <tbody className="divide-y divide-zinc-200"><tr><Td>User dashboard</Td><Td>Allowed</Td></tr><tr><Td>Admin panel</Td><Td>{auth.role === "admin" ? "Allowed" : "Restricted"}</Td></tr></tbody>
         </Table>
       </DataTable>
-      <EmptyState title="No records connected" description="Link dashboard queries when Supabase data flow is implemented." actionLabel="Connect data" />
     </div>
   );
 }
